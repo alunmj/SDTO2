@@ -1,30 +1,35 @@
 chrome.webRequest.onErrorOccurred.addListener(onErrorOccurred, {urls: ["<all_urls>"]});
 chrome.webRequest.onCompleted.addListener(onCompleted, {urls: ["<all_urls>"]});
 
-function onErrorOccurred(details)
+// Storage API details at https://developer.chrome.com/docs/extensions/reference/api/storage
+
+async function onErrorOccurred(details)
 {
   if (!navigator.onLine) {
     return; // Could just be because we disconnected.
   }
   if (details.error == "net::ERR_NAME_NOT_RESOLVED") {
     //debugger;
-    var xhr = new XMLHttpRequest();
-    xhr.onreadystatechange = function(xreq) {
-      if (xhr.readyState == 4) {
-    //alert('NXDOMAIN on page trying to read ' + details.url);
-        jq = JSON.parse(xreq.target.responseText);
+    response = await fetch("https://dns.google/resolve?name="+(new URL(details.url)).host+"&type=5")
+    if (response.status == 200) {
+        jq = await response.json();
+        //debugger
         if (jq.Answer) {
-          cnameExtra = "\nCNAME for: " + jq.Answer[0].data;
+          cnameExtra = "\r\n \r\nCNAME for: " + jq.Answer[0].data
+          cname = jq.Answer[0].data
         } else {
           cnameExtra = "";
+          cname = ""
         }
-        chrome.tabs.get(details.tabId,function(tab){
-          alert('NXD Source ' + tab.url + '\nDest ' + details.url + cnameExtra);
-        });
-      }
+        datatowrite = {"desturl":details.url,"cname":cname}
+        chrome.tabs.get(details.tabId,function(tab) {
+          datatowrite.pageurl = tab.url
+          theHost = (new URL(details.url)).hostname
+          datatowrite.dest = theHost
+          chrome.storage.local.set({[theHost]:datatowrite})
+        })
+
     }
-    xhr.open("GET","https://dns.google/resolve?name="+(new URL(details.url)).host+"&type=5", true);
-    xhr.send();
 
 //    chrome.tabs.update(details.tabId, {url: "..."});
   }

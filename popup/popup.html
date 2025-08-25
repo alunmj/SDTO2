@@ -16,7 +16,12 @@
         </style>
     </head>
     <body>
-        <h1>We should really have a list here of discovered subdomains that are NXDOMAIN, and the sites that refer to them...</h1>
-        <div id="list"></div>
+        <h1 id="headerpart">Potentially interesting subdomains...</h1>
+        <div id="listfield"></div>
+        <button id="clearbutton">Clear</button>
+        <p>These subdomains were requested by pages you visit, and DNS said "NXDOMAIN - no such domain".</p>
+        <p>The 'CNAME' column indicates when the subdomain has an alias to another subdomain.</p>
+        <p>If you can take over subdomains in either of these columns, you can perform a 2nd order SDTO.</p>
+        <script src="popup.js"></script>
     </body>
 </html>
