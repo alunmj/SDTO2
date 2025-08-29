@@ -27,7 +27,6 @@
                 "<all_urls>"
             ],
             "js": [
-                "lib/jquery.min.js",
                 "content-scripts/content.js"
             ]
         }
